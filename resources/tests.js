@@ -15,23 +15,18 @@ Suites.push({
     tests: [
         new BenchmarkTestStep('Adding' + numberOfItemsToAdd + 'Items', function (newTodo, contentWindow, contentDocument) {
             var appView = contentWindow.appView;
+            var todos = contentWindow.app.todos;
+            var data = [];
             for (var i = 0; i < numberOfItemsToAdd; i++) {
-                var keypressEvent = document.createEvent('Event');
-                keypressEvent.initEvent('keypress', true, true);
-                keypressEvent.which = 13;
-                newTodo.value = 'Something to do ' + i;
-                newTodo.dispatchEvent(keypressEvent)
+                data.push({title: 'Something to do ' + i});
             }
+            todos.reset(data);
         }),
         new BenchmarkTestStep('CompletingAllItems', function (newTodo, contentWindow, contentDocument) {
-            var checkboxes = contentDocument.querySelectorAll('.toggle');
-            for (var i = 0; i < checkboxes.length; i++)
-                checkboxes[i].click();
+            contentWindow.appView.completeAll();
         }),
         new BenchmarkTestStep('DeletingAllItems', function (newTodo, contentWindow, contentDocument) {
-            var deleteButtons = contentDocument.querySelectorAll('.destroy');
-            for (var i = 0; i < deleteButtons.length; i++)
-                deleteButtons[i].click();
+            contentWindow.app.todos.reset();
         })
     ]
 });
@@ -198,27 +193,19 @@ Suites.push({
     },
     tests: [
         new BenchmarkTestStep('Adding' + numberOfItemsToAdd + 'Items', function (newTodo, contentWindow, contentDocument) {
+            var state = contentWindow.TodoState;
+            var add = contentWindow.addTodo;
             for (var i = 0; i < numberOfItemsToAdd; i++) {
-                var inputEvent = document.createEvent('Event');
-                inputEvent.initEvent('input', true, true);
-                newTodo.value = 'Something to do ' + i;
-                newTodo.dispatchEvent(inputEvent);
-
-                var keydownEvent = document.createEvent('Event');
-                keydownEvent.initEvent('keydown', true, true);
-                keydownEvent.keyCode = 13; // VK_ENTER
-                newTodo.dispatchEvent(keydownEvent);
+                add(state, {newTodo : 'Something to do ' + i});
             }
         }),
         new BenchmarkTestStep('CompletingAllItems', function (newTodo, contentWindow, contentDocument) {
-            var checkboxes = contentDocument.querySelectorAll('.toggle');
-            for (var i = 0; i < checkboxes.length; i++)
-                checkboxes[i].click();
+            var state = contentWindow.TodoState;
+            contentWindow.toggleAll(state, {toggle: true});
         }),
         new BenchmarkTestStep('DeletingAllItems', function (newTodo, contentWindow, contentDocument) {
-            var deleteButtons = contentDocument.querySelectorAll('.destroy');
-            for (var i = 0; i < deleteButtons.length; i++)
-                deleteButtons[i].click();
+            var state = contentWindow.TodoState;
+            contentWindow.clearCompleted(state);
         })
     ]
 });

@@ -13,6 +13,7 @@ var app = app || {};
 		// Instead of generating a new element, bind to the existing skeleton of
 		// the App already present in the HTML.
 		el: '#todoapp',
+		_toggling: false,
 
 		// Our template for the line of statistics at the bottom of the app.
 		statsTemplate: _.template($('#stats-template').html()),
@@ -49,6 +50,7 @@ var app = app || {};
 		// Re-rendering the App just means refreshing the statistics -- the rest
 		// of the app doesn't change.
 		render: function () {
+		    if (this._toggling) return;
 			var completed = app.todos.completed().length;
 			var remaining = app.todos.remaining().length;
 
@@ -116,6 +118,21 @@ var app = app || {};
 		clearCompleted: function () {
 			_.invoke(app.todos.completed(), 'destroy');
 			return false;
+		},
+
+		completeAll: function() {
+		    //because of the way the events are hooked up in this source
+		    //render will be called each time an item is completed, so it will be called
+		    //100 times if we're completing 100 times when it all needs to be called once in the end
+		    //so I've hacked it with a boolean flag for the purposes of this benchmark.
+            this._toggling = true;
+			app.todos.each(function (todo) {
+				todo.save({
+					'completed': true
+				});
+			});
+            this._toggling = false;
+            this.render();
 		},
 
 		toggleAllComplete: function () {

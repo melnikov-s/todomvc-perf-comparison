@@ -292,6 +292,7 @@ var TodoApp = {
     }
 }
 
+
 var TodoItem = {
     id: null,
     title: "",
@@ -307,7 +308,7 @@ module.exports = {
 function todoApp(events, initialState) {
     var state = extend(TodoApp, initialState)
 
-    return mercury.hash({
+    return window.TodoState = mercury.hash({
         todos: mercury.array(state.todos.map(todoItem)),
         route: mercury.value(state.route),
         field: mercury.hash({
@@ -354,6 +355,8 @@ function toggleAll(state, value) {
     })
 }
 
+window.toggleAll = toggleAll;
+
 function add(state, data) {
     if (data.newTodo.trim() === "") {
         return
@@ -365,6 +368,7 @@ function add(state, data) {
     state.field.text.set("")
 }
 
+window.addTodo = add;
 
 function setTodoField(state, data) {
     state.field.text.set(data.newTodo)
@@ -410,6 +414,8 @@ function clearCompleted(state) {
         }
     })
 }
+
+window.clearCompleted = clearCompleted;
 
 function find(list, id) {
     for (var i = 0; i < list.getLength(); i++) {
